@@ -25,7 +25,8 @@ jobs:
 
   install-yarn:
     runs-on: ubuntu-latest
-    if: ${{needs.check_package.outputs.package == "yarn"}}  # only run if yarn lock is present
+    needs: [check-package]
+    if: ${{ needs.check_package.outputs.package == 'yarn' }}  # only run if yarn lock is present
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
@@ -39,7 +40,8 @@ jobs:
 
   install-npm:
     runs-on: ubuntu-latest
-    if: ${{needs.check_package.outputs.package == "npm"}}  # only run if package-lock is present
+    needs: [check-package]
+    if: ${{ needs.check_package.outputs.package == 'npm' }}  # only run if package-lock is present
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
