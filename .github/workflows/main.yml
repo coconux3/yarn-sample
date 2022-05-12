@@ -26,10 +26,10 @@ jobs:
             echo "::error::No package manager found"
           fi
 
-  install-yarn:
-    runs-on: ubuntu-latest
-    needs: [check-package]
-    if: ${{ needs.check_package.outputs.package == 'yarn' }}  # only run if yarn lock is present
+  yarn_job:
+    runs-on: ubuntu-latest # For now jobs aren't triggered, so I do It manually
+    # needs: [check-package]
+    # if: ${{ needs.check_package.outputs.package == 'yarn' }}  # only run if yarn lock is present
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
@@ -41,7 +41,7 @@ jobs:
     - run: yarn lint --if-present
     - run: yarn build --if-present
 
-  install-npm:
+  npm_job:
     runs-on: ubuntu-latest
     needs: [check-package]
     if: ${{ needs.check_package.outputs.package == 'npm' }}  # only run if package-lock is present
