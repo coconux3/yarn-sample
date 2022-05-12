@@ -16,10 +16,13 @@ jobs:
         id: check_package
         run: |
           if ls yarn.lock; then
+            echo '🟦 yarn package found'
             echo "::set-output name=package::yarn"
           elif ls package-lock.json; then
+            echo '🍏 npm package found'
             echo "::set-output name=package::npm"
           else
+            echo 'No package manager found'
             echo "::error::No package manager found"
           fi
 
