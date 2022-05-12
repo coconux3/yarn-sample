@@ -1,0 +1,53 @@
+name: Node.js CI
+
+on: [push]
+
+jobs:
+  check-package:
+    runs-on: ubuntu-latest
+    outputs:
+      package: ${{steps.check_package.outputs.package}}
+
+    steps:
+      - name: Check out repository code
+      - uses: actions/checkout@v3
+
+      - name: Check package manager
+      - id: check_package
+      - run: |
+          if ls yarn.lock; then
+            echo "::set-output name=package::yarn"
+          elif ls package-lock.json; then
+            echo "::set-output name=package::npm"
+          else
+            echo "::error::No package manager found"
+          fi
+
+  install-yarn:
+    runs-on: ubuntu-latest
+    if: ${{needs.check_package.outputs.package == "yarn"}}  # only run if yarn lock is present
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'yarn'
+    - run: yarn install --frozen-lockfile --check-cache --immutable --immutable-cache --check-cache
+    - run: yarn test --if-present
+    - run: yarn lint --if-present
+    - run: yarn build --if-present
+
+  install-npm:
+    runs-on: ubuntu-latest
+    if: ${{needs.check_package.outputs.package == "npm"}}  # only run if package-lock is present
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+    - run: npm ci
+    - run: npm test --if present
+    - run: npm lint --if-present
+    - run: npm build --if-present
