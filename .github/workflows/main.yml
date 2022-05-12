@@ -10,11 +10,11 @@ jobs:
 
     steps:
       - name: Check out repository code
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Check package manager
-      - id: check_package
-      - run: |
+        id: check_package
+        run: |
           if ls yarn.lock; then
             echo "::set-output name=package::yarn"
           elif ls package-lock.json; then
