@@ -3,29 +3,6 @@ name: Node.js CI
 on: [push]
 
 jobs:
-  check-package:
-    runs-on: ubuntu-latest
-    outputs:
-      package: ${{steps.check_package.outputs.package}}
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-
-      - name: Check package manager
-        id: check_package
-        run: |
-          if [ -f yarn.lock ]; then
-            echo '🟦 yarn package found'
-            echo "::set-output name=package::yarn"
-          elif [ -f package-lock.json ]; then
-            echo '🍏 npm package found'
-            echo "::set-output name=package::npm"
-          else
-            echo 'No package manager found'
-            echo "::error::No package manager found"
-          fi
-
   yarn_job:
     runs-on: ubuntu-latest # For now jobs aren't triggered, so I do It manually
     # needs: [check-package]
@@ -37,22 +14,9 @@ jobs:
         node-version: '18'
         cache: 'yarn'
     - run: yarn install --frozen-lockfile --check-cache --immutable --immutable-cache --check-cache
-    - run: [[ $(cat package.json | jq .scripts.test) != null ]] && yarn run test
-    - run: [[ $(cat package.json | jq .scripts.lint) != null ]] && yarn run lint
-    - run: [[ $(cat package.json | jq .scripts.build) != null ]] && yarn run build
-
-  npm_job:
-    runs-on: ubuntu-latest
-    needs: [check-package]
-    if: ${{ needs.check_package.outputs.package == 'npm' }}  # only run if package-lock is present
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: '**/package-lock.json'
-    - run: npm ci
-    - run: npm test --if present
-    - run: npm lint --if-present
-    - run: npm build --if-present
+    - run: if [ $(cat package.json | jq .scripts.test) != null ]; then yarn run test; fi 
+    - run: if [ $(cat package.json | jq .scripts.tests) != null ]; then yarn run tests; fi 
+    - run: if [ $(cat package.json | jq .scripts.teste2e) != null ]; then yarn run teste2e; fi 
+    - run: if [ $(cat package.json | jq .scripts.lint) != null ]; then yarn run lint; fi
+    - run: if [ $(cat package.json | jq .scripts.build) != null ]; then yarn run build; fi
+    - run: if [ $(cat package.json | jq .scripts.coverage) != null ]; then yarn run coverage; fi
